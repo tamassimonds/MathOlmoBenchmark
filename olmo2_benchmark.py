@@ -21,8 +21,8 @@ class BenchmarkConfig:
     model_name: str
     revision: Optional[str] = None
     max_questions: int = 500
-    batch_size: int = 8
-    max_new_tokens: int = 512
+    batch_size: int = 512
+    max_new_tokens: int = 1024
     temperature: float = 0.0
     top_k: int = 50
     top_p: float = 0.95
