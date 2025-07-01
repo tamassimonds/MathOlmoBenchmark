@@ -13,7 +13,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import datasets
 from tqdm import tqdm
 
-from maths.reward import compute_score, Score
+from maths.reward_simple import compute_score, Score
 
 
 @dataclass
