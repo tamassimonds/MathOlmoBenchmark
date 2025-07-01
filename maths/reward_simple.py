@@ -5,7 +5,7 @@ Focuses on core mathematical equivalence checking without verl dependencies
 
 import re
 from enum import Enum, auto
-from typing import NamedTuple
+from typing import NamedTuple, Union, Optional
 
 
 class Status(Enum):
@@ -21,7 +21,7 @@ class Score(NamedTuple):
     status: Status
 
 
-def last_boxed_only_string(string: str) -> str | None:
+def last_boxed_only_string(string: str) -> Optional[str]:
     """Extract the last boxed answer from a string."""
     idx = string.rfind("\\boxed")
     if idx == -1:
@@ -127,9 +127,31 @@ def is_equiv(str1: str, str2: str) -> bool:
         pass
     
     # Handle common mathematical notations
-    # Remove spaces
+    # Remove spaces and normalize
     str1_clean = re.sub(r'\s+', '', str1.lower())
     str2_clean = re.sub(r'\s+', '', str2.lower())
+    
+    # Handle LaTeX vs Unicode for common symbols
+    replacements = [
+        ('\\pi', 'π'),
+        ('\\alpha', 'α'),
+        ('\\beta', 'β'),
+        ('\\gamma', 'γ'),
+    ]
+    
+    # Handle LaTeX fractions
+    frac_pattern = r'\\frac\{([^}]+)\}\{([^}]+)\}'
+    
+    def replace_frac(match):
+        return f"{match.group(1)}/{match.group(2)}"
+    
+    # Apply LaTeX fraction replacement
+    str1_clean = re.sub(frac_pattern, replace_frac, str1_clean)
+    str2_clean = re.sub(frac_pattern, replace_frac, str2_clean)
+    
+    for latex, unicode_char in replacements:
+        str1_clean = str1_clean.replace(latex, unicode_char)
+        str2_clean = str2_clean.replace(latex, unicode_char)
     
     if str1_clean == str2_clean:
         return True
@@ -153,17 +175,20 @@ def compute_score(solution_str: str, ground_truth: str) -> Score:
             # Try to find answer patterns without boxed notation
             # Look for common answer patterns
             patterns = [
-                r'(?i)(?:answer|final answer|solution)(?:\s*[:=]\s*)(.+)',
-                r'(?i)(?:therefore|thus|so)(?:\s*,?\s*)(.+)',
-                r'(?i)the answer is\s*(.+)',
+                r'(?i)(?:final answer|answer|solution)(?:\s*[:=]\s*)(.+?)(?:\.|$)',
+                r'(?i)(?:therefore|thus|so)(?:\s*,?\s*)(?:we get\s*)?(.+?)(?:\.|$)', 
+                r'(?i)the answer is\s*(.+?)(?:\.|$)',
+                r'(?i)so the final answer is\s*(.+?)(?:\.|$)',
             ]
             
             for pattern in patterns:
-                match = re.search(pattern, solution_str)
-                if match:
-                    candidate_answer = match.group(1).strip()
+                matches = re.findall(pattern, solution_str, re.MULTILINE)
+                if matches:
+                    # Take the last match (most likely to be the final answer)
+                    candidate_answer = matches[-1].strip()
                     # Clean up the candidate answer
                     candidate_answer = re.sub(r'[.!,]+$', '', candidate_answer)
+                    candidate_answer = candidate_answer.strip()
                     if is_equiv(candidate_answer, ground_truth):
                         return Score(1.0, solution_str, Status.OK)
             
