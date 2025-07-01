@@ -1,0 +1,22 @@
+[project]
+name = "matholmobench"
+version = "0.1.0"
+description = "OLMo 2 benchmarking on MATH dataset"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.48.0",
+    "datasets>=2.14.0",
+    "accelerate>=0.20.0",
+    "tqdm>=4.65.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "bitsandbytes>=0.41.0",
+]
+
+[project.scripts]
+olmo2-benchmark = "olmo2_benchmark:main"
