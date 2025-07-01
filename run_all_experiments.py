@@ -22,11 +22,13 @@ class ExperimentRunner:
                  output_dir: str = "./experiment_results",
                  dry_run: bool = False,
                  continue_on_error: bool = True,
-                 max_retries: int = 2):
+                 max_retries: int = 2,
+                 debug: bool = False):
         self.output_dir = Path(output_dir)
         self.dry_run = dry_run
         self.continue_on_error = continue_on_error
         self.max_retries = max_retries
+        self.debug = debug
         
         # Create output directory
         self.output_dir.mkdir(exist_ok=True)
@@ -114,8 +116,15 @@ class ExperimentRunner:
                 else:
                     error_msg = f"❌ Experiment failed (attempt {attempt + 1}/{self.max_retries + 1})"
                     self.log_and_print(error_msg)
-                    self.log_and_print(f"Return code: {result.returncode}", False)
-                    self.log_and_print(f"STDERR: {result.stderr[:500]}...", False)  # Truncate long errors
+                    self.log_and_print(f"Return code: {result.returncode}")
+                    if self.debug or len(result.stdout) < 1000:
+                        self.log_and_print(f"STDOUT: {result.stdout}", False)
+                    else:
+                        self.log_and_print(f"STDOUT: {result.stdout[:500]}...[truncated, use --debug for full output]", False)
+                    if self.debug or len(result.stderr) < 1000:
+                        self.log_and_print(f"STDERR: {result.stderr}", False)
+                    else:
+                        self.log_and_print(f"STDERR: {result.stderr[:500]}...[truncated, use --debug for full output]", False)
                     
                     if attempt < self.max_retries:
                         self.log_and_print(f"Retrying in 10 seconds...")
@@ -289,6 +298,8 @@ def main():
                        help="Maximum retries per experiment")
     parser.add_argument("--list_groups", action="store_true",
                        help="List available experiment groups")
+    parser.add_argument("--debug", action="store_true",
+                       help="Show full error output for debugging")
     
     args = parser.parse_args()
     
@@ -317,7 +328,8 @@ def main():
         output_dir=args.output_dir,
         dry_run=args.dry_run,
         continue_on_error=not args.stop_on_error,
-        max_retries=args.max_retries
+        max_retries=args.max_retries,
+        debug=args.debug
     )
     
     summary = runner.run_experiments(experiments)

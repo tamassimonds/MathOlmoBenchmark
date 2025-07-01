@@ -26,62 +26,72 @@ OLMO_1B_EXPERIMENTS = [
         revision="stage1-step0-tokens0B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step0-unsharded/",
         description="OLMo 1B - Step 0",
-        batch_size=512
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step10000-tokens21B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step10000-unsharded/",
-        description="OLMo 1B - Step 10k"
+        description="OLMo 1B - Step 10k",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step100000-tokens210B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step100000-unsharded/",
-        description="OLMo 1B - Step 100k"
+        description="OLMo 1B - Step 100k",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step500000-tokens1050B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step500000-unsharded/",
-        description="OLMo 1B - Step 500k"
+        description="OLMo 1B - Step 500k",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step1000000-tokens2100B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step1000000-unsharded/",
-        description="OLMo 1B - Step 1M"
+        description="OLMo 1B - Step 1M",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step1500000-tokens3150B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step1500000-unsharded/",
-        description="OLMo 1B - Step 1.5M"
+        description="OLMo 1B - Step 1.5M",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step1907359-tokens4005B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step1907359-unsharded/",
-        description="OLMo 1B - Final Step 1.9M"
+        description="OLMo 1B - Final Step 1.9M",
+        batch_size=32
     ),
     # Stage 2
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage2-step23852-tokens50B",
-        description="OLMo 1B - Stage 2 Step 23852"
+        description="OLMo 1B - Stage 2 Step 23852",
+        batch_size=32
     ),
     # Fine-tuned variants
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B-SFT",
-        description="OLMo 1B - SFT"
+        description="OLMo 1B - SFT",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B-DPO",
-        description="OLMo 1B - DPO"
+        description="OLMo 1B - DPO",
+        batch_size=32
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B-Instruct",
-        description="OLMo 1B - Instruct"
+        description="OLMo 1B - Instruct",
+        batch_size=32
     ),
 ]
 
@@ -92,53 +102,53 @@ OLMO_7B_EXPERIMENTS = [
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step0-tokens0B",
         description="OLMo 7B - Step 0",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step10000-tokens21B",
         description="OLMo 7B - Step 10k",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step100000-tokens210B",
         description="OLMo 7B - Step 100k",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step500000-tokens1050B",
         description="OLMo 7B - Step 500k",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step750000-tokens1575B",
         description="OLMo 7B - Step 750k",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step928000-tokens1949B",
         description="OLMo 7B - Final Step 928k",
-        batch_size=512
+        batch_size=16
     ),
     # Fine-tuned variants
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B-SFT",
         description="OLMo 7B - SFT",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B-DPO",
         description="OLMo 7B - DPO",
-        batch_size=512
+        batch_size=16
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B-Instruct",
         description="OLMo 7B - Instruct",
-        batch_size=512
+        batch_size=16
     ),
 ]
 
@@ -149,53 +159,53 @@ OLMO_13B_EXPERIMENTS = [
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step0-tokens0B",
         description="OLMo 13B - Step 0",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step10000-tokens21B",
         description="OLMo 13B - Step 10k",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step100000-tokens210B",
         description="OLMo 13B - Step 100k",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step300000-tokens630B",
         description="OLMo 13B - Step 300k",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step450000-tokens945B",
         description="OLMo 13B - Step 450k",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step596057-tokens1252B",
         description="OLMo 13B - Final Step 596k",
-        batch_size=256
+        batch_size=8
     ),
     # Fine-tuned variants
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B-SFT",
         description="OLMo 13B - SFT",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B-DPO",
         description="OLMo 13B - DPO",
-        batch_size=256
+        batch_size=8
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B-Instruct",
         description="OLMo 13B - Instruct",
-        batch_size=256
+        batch_size=8
     ),
 ]
 
