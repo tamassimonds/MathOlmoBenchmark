@@ -25,7 +25,8 @@ OLMO_1B_EXPERIMENTS = [
         model_name="allenai/OLMo-2-0425-1B",
         revision="stage1-step0-tokens0B",
         checkpoint_url="https://olmo-checkpoints.org/ai2-llm/peteish1/step0-unsharded/",
-        description="OLMo 1B - Step 0"
+        description="OLMo 1B - Step 0",
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-0425-1B",
@@ -91,53 +92,53 @@ OLMO_7B_EXPERIMENTS = [
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step0-tokens0B",
         description="OLMo 7B - Step 0",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step10000-tokens21B",
         description="OLMo 7B - Step 10k",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step100000-tokens210B",
         description="OLMo 7B - Step 100k",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step500000-tokens1050B",
         description="OLMo 7B - Step 500k",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step750000-tokens1575B",
         description="OLMo 7B - Step 750k",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B",
         revision="stage1-step928000-tokens1949B",
         description="OLMo 7B - Final Step 928k",
-        batch_size=4
+        batch_size=512
     ),
     # Fine-tuned variants
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B-SFT",
         description="OLMo 7B - SFT",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B-DPO",
         description="OLMo 7B - DPO",
-        batch_size=4
+        batch_size=512
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-7B-Instruct",
         description="OLMo 7B - Instruct",
-        batch_size=4
+        batch_size=512
     ),
 ]
 
@@ -148,53 +149,53 @@ OLMO_13B_EXPERIMENTS = [
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step0-tokens0B",
         description="OLMo 13B - Step 0",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step10000-tokens21B",
         description="OLMo 13B - Step 10k",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step100000-tokens210B",
         description="OLMo 13B - Step 100k",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step300000-tokens630B",
         description="OLMo 13B - Step 300k",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step450000-tokens945B",
         description="OLMo 13B - Step 450k",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B",
         revision="stage1-step596057-tokens1252B",
         description="OLMo 13B - Final Step 596k",
-        batch_size=2
+        batch_size=256
     ),
     # Fine-tuned variants
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B-SFT",
         description="OLMo 13B - SFT",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B-DPO",
         description="OLMo 13B - DPO",
-        batch_size=2
+        batch_size=256
     ),
     ExperimentConfig(
         model_name="allenai/OLMo-2-1124-13B-Instruct",
         description="OLMo 13B - Instruct",
-        batch_size=2
+        batch_size=256
     ),
 ]
 
