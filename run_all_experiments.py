@@ -82,98 +82,36 @@ class ExperimentRunner:
                 "command": ' '.join(cmd)
             }
         
-        # Execute experiment with retries
-        for attempt in range(self.max_retries + 1):
-            try:
-                self.log_and_print(f"Executing command: {' '.join(cmd)}")
-                result = subprocess.run(
-                    cmd,
-                    capture_output=True,
-                    text=True,
-                    timeout=3600  # 1 hour timeout
-                )
-                
-                duration = time.time() - experiment_start
-                
-                if result.returncode == 0:
-                    # Success - parse results
-                    success_msg = f"✅ Experiment completed successfully in {duration:.1f}s"
-                    self.log_and_print(success_msg)
-                    
-                    result_dict = {
-                        "config": config.__dict__,
-                        "status": "success",
-                        "duration": duration,
-                        "command": ' '.join(cmd),
-                        "stdout": result.stdout,
-                        "stderr": result.stderr,
-                        "attempt": attempt + 1
-                    }
-                    
-                    # Save individual experiment result immediately
-                    self._save_individual_result(config, result_dict)
-                    return result_dict
-                else:
-                    error_msg = f"❌ Experiment failed (attempt {attempt + 1}/{self.max_retries + 1})"
-                    self.log_and_print(error_msg)
-                    self.log_and_print(f"Return code: {result.returncode}")
-                    if self.debug or len(result.stdout) < 1000:
-                        self.log_and_print(f"STDOUT: {result.stdout}", False)
-                    else:
-                        self.log_and_print(f"STDOUT: {result.stdout[:500]}...[truncated, use --debug for full output]", False)
-                    if self.debug or len(result.stderr) < 1000:
-                        self.log_and_print(f"STDERR: {result.stderr}", False)
-                    else:
-                        self.log_and_print(f"STDERR: {result.stderr[:500]}...[truncated, use --debug for full output]", False)
-                    
-                    if attempt < self.max_retries:
-                        self.log_and_print(f"Retrying in 10 seconds...")
-                        time.sleep(10)
-                    else:
-                        return {
-                            "config": config.__dict__,
-                            "status": "failed",
-                            "duration": duration,
-                            "command": ' '.join(cmd),
-                            "stdout": result.stdout,
-                            "stderr": result.stderr,
-                            "return_code": result.returncode,
-                            "attempts": self.max_retries + 1
-                        }
-                        
-            except subprocess.TimeoutExpired:
-                duration = time.time() - experiment_start
-                timeout_msg = f"⏰ Experiment timed out after {duration:.1f}s (attempt {attempt + 1}/{self.max_retries + 1})"
-                self.log_and_print(timeout_msg)
-                
-                if attempt < self.max_retries:
-                    self.log_and_print(f"Retrying in 10 seconds...")
-                    time.sleep(10)
-                else:
-                    return {
-                        "config": config.__dict__,
-                        "status": "timeout",
-                        "duration": duration,
-                        "command": ' '.join(cmd),
-                        "attempts": self.max_retries + 1
-                    }
-                    
-            except Exception as e:
-                duration = time.time() - experiment_start
-                error_msg = f"💥 Unexpected error: {str(e)}"
-                self.log_and_print(error_msg)
-                
-                result_dict = {
-                    "config": config.__dict__,
-                    "status": "error",
-                    "duration": duration,
-                    "command": ' '.join(cmd),
-                    "error": str(e),
-                    "attempt": attempt + 1
-                }
-                
-                self._save_individual_result(config, result_dict)
-                return result_dict
+        # Execute experiment (no retries)
+        try:
+            self.log_and_print(f"Executing command: {' '.join(cmd)}")
+            print(f"RUNNING: {' '.join(cmd)}")  # Direct print to terminal
+            result = subprocess.run(cmd, timeout=3600)
+            
+            duration = time.time() - experiment_start
+            success_msg = f"✅ Experiment completed successfully in {duration:.1f}s"
+            self.log_and_print(success_msg)
+            
+            return {
+                "config": config.__dict__,
+                "status": "success", 
+                "duration": duration,
+                "command": ' '.join(cmd)
+            }
+            
+        except Exception as e:
+            duration = time.time() - experiment_start
+            error_msg = f"💥 Experiment failed: {str(e)}"
+            print(f"ERROR: {error_msg}")  # Direct print to terminal
+            self.log_and_print(error_msg)
+            
+            return {
+                "config": config.__dict__,
+                "status": "failed",
+                "duration": duration,
+                "command": ' '.join(cmd),
+                "error": str(e)
+            }
         
     def _build_command(self, config: ExperimentConfig) -> List[str]:
         """Build the command to run the experiment"""
