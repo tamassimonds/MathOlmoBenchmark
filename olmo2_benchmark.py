@@ -170,6 +170,10 @@ class OLMo2Benchmark:
                      desc="Processing batches", disable=self.rank != 0):
             batch_end = min(i + self.config.batch_size, len(self.test_dataset))
             batch = self.test_dataset[i:batch_end]
+            batch_num = (i // self.config.batch_size) + 1
+            
+            if self.rank == 0:
+                self.logger.info(f"Processing batch {batch_num}/{num_batches} (questions {i+1}-{batch_end})")
             
             problems = batch["problem"]
             solutions = batch["solution"]
@@ -180,6 +184,10 @@ class OLMo2Benchmark:
             responses = self.generate_batch(prompts)
             batch_time = time.time() - start_time
             total_time += batch_time
+            
+            if self.rank == 0:
+                avg_time = batch_time / len(responses)
+                self.logger.info(f"Batch {batch_num} completed in {batch_time:.1f}s ({avg_time:.2f}s per question)")
             
             for j, (problem, solution, response) in enumerate(zip(problems, solutions, responses)):
                 ground_truth = self.extract_ground_truth(solution)
