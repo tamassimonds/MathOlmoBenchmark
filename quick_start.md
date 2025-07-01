@@ -124,11 +124,12 @@ ls -la experiment_results/benchmark_results/
 
 ## ⚡ Estimated Runtime
 
-- **1B models**: ~2-3 hours per experiment
-- **7B models**: ~4-6 hours per experiment  
-- **13B models**: ~6-8 hours per experiment
+For 500 questions each:
+- **1B models**: ~15-30 minutes per experiment
+- **7B models**: ~30-60 minutes per experiment  
+- **13B models**: ~60-90 minutes per experiment
 
-**Total estimated time: 4-6 days** (depending on hardware)
+**Total estimated time: 12-24 hours** (depending on hardware and batch sizes)
 
 ## 🎯 Recommended Workflow
 

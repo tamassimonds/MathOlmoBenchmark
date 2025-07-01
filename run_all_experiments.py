@@ -34,24 +34,45 @@ class ExperimentRunner:
         # Initialize experiment log
         self.experiment_log = []
         self.start_time = datetime.now()
+        self.log_file = self.output_dir / f"experiment_log_{int(self.start_time.timestamp())}.txt"
         
+        # Initialize log file
+        with open(self.log_file, 'w') as f:
+            f.write(f"OLMo Experiment Log - Started at {self.start_time.isoformat()}\n")
+            f.write("=" * 80 + "\n\n")
+        
+    def log_and_print(self, message: str, also_print: bool = True):
+        """Log message to file and optionally print"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        log_entry = f"[{timestamp}] {message}\n"
+        
+        with open(self.log_file, 'a') as f:
+            f.write(log_entry)
+            
+        if also_print:
+            print(f"[{timestamp}] {message}")
+    
     def run_single_experiment(self, config: ExperimentConfig) -> Dict[str, Any]:
         """Run a single experiment and return results"""
         experiment_start = time.time()
         
-        print(f"\n{'='*60}")
-        print(f"Running: {config.description}")
-        print(f"Model: {config.model_name}")
+        # Clear previous prints and show current experiment
+        os.system('clear' if os.name == 'posix' else 'cls')
+        
+        header = f"Running: {config.description}"
+        self.log_and_print("=" * 60)
+        self.log_and_print(header)
+        self.log_and_print(f"Model: {config.model_name}")
         if config.revision:
-            print(f"Revision: {config.revision}")
-        print(f"Batch size: {config.batch_size}")
-        print(f"{'='*60}")
+            self.log_and_print(f"Revision: {config.revision}")
+        self.log_and_print(f"Batch size: {config.batch_size}")
+        self.log_and_print("=" * 60)
         
         # Build command
         cmd = self._build_command(config)
         
         if self.dry_run:
-            print(f"DRY RUN: Would execute: {' '.join(cmd)}")
+            self.log_and_print(f"DRY RUN: Would execute: {' '.join(cmd)}")
             return {
                 "config": config.__dict__,
                 "status": "dry_run",
@@ -62,7 +83,7 @@ class ExperimentRunner:
         # Execute experiment with retries
         for attempt in range(self.max_retries + 1):
             try:
-                print(f"Executing command: {' '.join(cmd)}")
+                self.log_and_print(f"Executing command: {' '.join(cmd)}")
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
@@ -74,8 +95,10 @@ class ExperimentRunner:
                 
                 if result.returncode == 0:
                     # Success - parse results
-                    print("✅ Experiment completed successfully")
-                    return {
+                    success_msg = f"✅ Experiment completed successfully in {duration:.1f}s"
+                    self.log_and_print(success_msg)
+                    
+                    result_dict = {
                         "config": config.__dict__,
                         "status": "success",
                         "duration": duration,
@@ -84,13 +107,18 @@ class ExperimentRunner:
                         "stderr": result.stderr,
                         "attempt": attempt + 1
                     }
+                    
+                    # Save individual experiment result immediately
+                    self._save_individual_result(config, result_dict)
+                    return result_dict
                 else:
-                    print(f"❌ Experiment failed (attempt {attempt + 1}/{self.max_retries + 1})")
-                    print(f"Return code: {result.returncode}")
-                    print(f"STDERR: {result.stderr}")
+                    error_msg = f"❌ Experiment failed (attempt {attempt + 1}/{self.max_retries + 1})"
+                    self.log_and_print(error_msg)
+                    self.log_and_print(f"Return code: {result.returncode}", False)
+                    self.log_and_print(f"STDERR: {result.stderr[:500]}...", False)  # Truncate long errors
                     
                     if attempt < self.max_retries:
-                        print(f"Retrying in 10 seconds...")
+                        self.log_and_print(f"Retrying in 10 seconds...")
                         time.sleep(10)
                     else:
                         return {
@@ -106,10 +134,11 @@ class ExperimentRunner:
                         
             except subprocess.TimeoutExpired:
                 duration = time.time() - experiment_start
-                print(f"⏰ Experiment timed out (attempt {attempt + 1}/{self.max_retries + 1})")
+                timeout_msg = f"⏰ Experiment timed out after {duration:.1f}s (attempt {attempt + 1}/{self.max_retries + 1})"
+                self.log_and_print(timeout_msg)
                 
                 if attempt < self.max_retries:
-                    print(f"Retrying in 10 seconds...")
+                    self.log_and_print(f"Retrying in 10 seconds...")
                     time.sleep(10)
                 else:
                     return {
@@ -122,8 +151,10 @@ class ExperimentRunner:
                     
             except Exception as e:
                 duration = time.time() - experiment_start
-                print(f"💥 Unexpected error: {str(e)}")
-                return {
+                error_msg = f"💥 Unexpected error: {str(e)}"
+                self.log_and_print(error_msg)
+                
+                result_dict = {
                     "config": config.__dict__,
                     "status": "error",
                     "duration": duration,
@@ -131,6 +162,9 @@ class ExperimentRunner:
                     "error": str(e),
                     "attempt": attempt + 1
                 }
+                
+                self._save_individual_result(config, result_dict)
+                return result_dict
         
     def _build_command(self, config: ExperimentConfig) -> List[str]:
         """Build the command to run the experiment"""
@@ -151,12 +185,26 @@ class ExperimentRunner:
         
         return cmd
     
+    def _save_individual_result(self, config: ExperimentConfig, result: Dict[str, Any]):
+        """Save individual experiment result immediately"""
+        timestamp = int(time.time())
+        result_file = self.output_dir / f"result_{config.model_name.replace('/', '_')}_{timestamp}.json"
+        
+        try:
+            with open(result_file, 'w') as f:
+                json.dump(result, f, indent=2)
+            self.log_and_print(f"💾 Result saved to: {result_file.name}", False)
+        except Exception as e:
+            self.log_and_print(f"⚠️  Failed to save result: {e}", False)
+    
     def run_experiments(self, experiments: List[ExperimentConfig]) -> Dict[str, Any]:
         """Run all experiments and return summary"""
-        print(f"🚀 Starting {len(experiments)} experiments...")
-        print(f"Output directory: {self.output_dir}")
-        print(f"Dry run: {self.dry_run}")
-        print(f"Continue on error: {self.continue_on_error}")
+        start_msg = f"🚀 Starting {len(experiments)} experiments..."
+        self.log_and_print(start_msg)
+        self.log_and_print(f"Output directory: {self.output_dir}")
+        self.log_and_print(f"Log file: {self.log_file}")
+        self.log_and_print(f"Dry run: {self.dry_run}")
+        self.log_and_print(f"Continue on error: {self.continue_on_error}")
         
         results = []
         successful = 0
@@ -164,7 +212,8 @@ class ExperimentRunner:
         skipped = 0
         
         for i, config in enumerate(experiments, 1):
-            print(f"\n[{i}/{len(experiments)}] Starting experiment...")
+            progress_msg = f"\n[{i}/{len(experiments)}] Starting experiment..."
+            self.log_and_print(progress_msg)
             
             try:
                 result = self.run_single_experiment(config)
@@ -172,19 +221,21 @@ class ExperimentRunner:
                 
                 if result["status"] == "success":
                     successful += 1
+                    self.log_and_print(f"✅ Progress: {successful} success, {failed} failed, {len(experiments) - i} remaining")
                 elif result["status"] == "dry_run":
                     skipped += 1
                 else:
                     failed += 1
+                    self.log_and_print(f"❌ Progress: {successful} success, {failed} failed, {len(experiments) - i} remaining")
                     if not self.continue_on_error:
-                        print(f"❌ Stopping due to failure (continue_on_error=False)")
+                        self.log_and_print(f"❌ Stopping due to failure (continue_on_error=False)")
                         break
                         
             except KeyboardInterrupt:
-                print(f"\n⏹️  Interrupted by user")
+                self.log_and_print(f"\n⏹️  Interrupted by user")
                 break
             except Exception as e:
-                print(f"💥 Unexpected error in experiment runner: {str(e)}")
+                self.log_and_print(f"💥 Unexpected error in experiment runner: {str(e)}")
                 failed += 1
                 if not self.continue_on_error:
                     break
@@ -207,16 +258,18 @@ class ExperimentRunner:
         with open(summary_file, 'w') as f:
             json.dump(summary, f, indent=2)
         
-        print(f"\n{'='*60}")
-        print(f"📊 EXPERIMENT SUMMARY")
-        print(f"{'='*60}")
-        print(f"Total experiments: {len(experiments)}")
-        print(f"Successful: {successful}")
-        print(f"Failed: {failed}")
+        # Final summary
+        self.log_and_print("\n" + "="*60)
+        self.log_and_print("📊 EXPERIMENT SUMMARY")
+        self.log_and_print("="*60)
+        self.log_and_print(f"Total experiments: {len(experiments)}")
+        self.log_and_print(f"Successful: {successful}")
+        self.log_and_print(f"Failed: {failed}")
         if skipped > 0:
-            print(f"Skipped (dry run): {skipped}")
-        print(f"Duration: {total_duration/3600:.2f} hours")
-        print(f"Summary saved to: {summary_file}")
+            self.log_and_print(f"Skipped (dry run): {skipped}")
+        self.log_and_print(f"Duration: {total_duration/3600:.2f} hours")
+        self.log_and_print(f"Summary saved to: {summary_file}")
+        self.log_and_print(f"Full log saved to: {self.log_file}")
         
         return summary
 
